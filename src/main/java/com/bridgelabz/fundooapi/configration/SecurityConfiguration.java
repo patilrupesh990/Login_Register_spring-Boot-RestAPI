@@ -1,4 +1,4 @@
-package com.bridgelabz.restapi.configration;
+package com.bridgelabz.fundooapi.configration;
 
 import javax.sql.DataSource;
 
