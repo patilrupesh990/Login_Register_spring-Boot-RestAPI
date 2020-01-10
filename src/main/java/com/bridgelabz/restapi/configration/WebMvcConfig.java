@@ -1,17 +1,15 @@
-package com.bridgelabz.fundooapi.configration;
+package com.bridgelabz.restapi.configration;
 
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-@Configuration
-@Order(1)
+
 public class WebMvcConfig implements WebMvcConfigurer {
 
 	@Bean
 	public BCryptPasswordEncoder passwordEncoder()
 	{
-		return new BCryptPasswordEncoder();
+		BCryptPasswordEncoder bCryptPasswordEncoder=new BCryptPasswordEncoder();
+		return bCryptPasswordEncoder;
 	}
 }
