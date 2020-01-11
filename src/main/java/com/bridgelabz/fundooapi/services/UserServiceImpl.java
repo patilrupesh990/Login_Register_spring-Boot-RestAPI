@@ -1,12 +1,9 @@
 package com.bridgelabz.fundooapi.services;
 
-package com.bridgelabz.fundooapi.services;
-
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Stream;
 
-import javax.servlet.http.HttpServletRequest;
+import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,17 +11,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
 
+import com.bridgelabz.fundooapi.dao.UserDao;
 import com.bridgelabz.fundooapi.model.User;
 import com.bridgelabz.fundooapi.util.EmailGenerator;
-import com.bridgelabz.fundooapi.repository.UserRepository;
 import com.bridgelabz.fundooapi.util.JwtTokenUtil;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service("userService")
+@Slf4j
 public class UserServiceImpl implements UserService {
 	@Autowired
-	private UserRepository userRepository;
+	private UserDao userDAO;
 
 	@Autowired
 	private JwtTokenUtil generateToken;
@@ -37,31 +36,34 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public User findUserByEmail(String email) {
-		return userRepository.findByEmail(email);
+		return null;
 	}
 
+	@Transactional
 	@Override
 	public ResponseEntity<String> registerUser(User user, BindingResult result) {
+		log.info("User Registration Service");
 
-
-
-
-		if (userRepository.findAll().stream()
-				.filter(userprocess -> userprocess.getEmail().equals(user.getEmail())) != null) {
+		if (userDAO.userExists(user)) {
+			log.info("User Alrady exist Service");
 			return ResponseEntity.status(HttpStatus.ALREADY_REPORTED).body("User Is Alrady Registered");
+
 		}
 
-		else if (result.hasErrors())
+		else if (result.hasErrors()) {
+			log.info("Internal server error in Service");
 			return ResponseEntity.status(HttpStatus.LOOP_DETECTED).body("Some Internal Error Occurred");
-
-		else {
-
+		} else {
 			user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
 			user.setActivate("Not varified");
 			user.setRegistration_date(LocalDate.now());
-			String link = "http://localhost:8082/register/activateuser" + generateToken.generateToken(user.getId());
+			log.info("User Registered");
+			userDAO.registerUser(user);
+			log.info("mail sending......");
+			String link = "http://localhost:8085/user/register/activateuser/"
+					+ generateToken.generateToken(user.getId());
 			emailGenerate.sendEmail(user.getEmail(), "Foondu Notes Varification", link);
-			userRepository.save(user);
+			log.info("MAil sent to user mailId");
 			return ResponseEntity.status(HttpStatus.CREATED)
 					.body("Verification Link Sent to your email" + user.getEmail() + " please verify your email first");
 
@@ -69,13 +71,21 @@ public class UserServiceImpl implements UserService {
 
 	}
 
+	public long activateUserAccount(String token) {
+		log.info("Activate USer Service");
+
+		long id = generateToken.parseToken(token);
+		userDAO.activateUser(id);
+		return id;
+	}
+
 	public List<User> getUserList() {
-		return userRepository.findAll();
+		return null;
 	}
 
 	@Override
 	public User findUserByUserName(String userName) {
-		return userRepository.findByEmail(userName);
+		return null;
 	}
 
 }
