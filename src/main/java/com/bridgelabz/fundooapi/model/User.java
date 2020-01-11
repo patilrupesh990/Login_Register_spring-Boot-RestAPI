@@ -1,103 +1,73 @@
-package com.bridgelabz.restapi.model;
+package com.bridgelabz.fundooapi.model;
 
-import java.util.Set;
+import java.time.LocalDate;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 @Entity
 @Table(name = "user")
+@Data
+@ToString
+@EqualsAndHashCode
+
 public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private int id;
 
-    @Column(name="email")    
-    private  String email;
-    
-    @Column(name="firstname")
-    private String firstname;
-    
-    @Column(name="lastname")
-    private String lastname;
-    
-    @Column(name="password")
-    private String password;
-    
-    @Column(name="active")
-    private int active;
-    
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable (name = "user_role",joinColumns =@JoinColumn(name="user_id"),inverseJoinColumns = @JoinColumn(name="role_id"))
-    private Set<Role> roles;
+	@Column(name = "email")
+	private String email;
 
-    
-    public int getActive() {
-		return active;
-	}
+	@Column(name = "firstname")
+	private String firstname;
 
-	public void setActive(int active) {
-		this.active = active;
-	}
+	@Column(name = "lastname")
+	private String lastname;
 
-	public int getId() {
-		return id;
-	}
+	@Column(name = "password")
+	private String password;
 
-	public void setId(int id) {
+	@Column(name = "gender")
+	private String gender;
+
+	@Column(name = "phNo")
+	private String phNo;
+
+	@Column(name = "dob")
+	private String dateOfBirth;
+
+	@Column(name = "userName")
+	private String userName;
+
+	@Column(name = "Registration_date")
+	private LocalDate registration_date;
+
+	@Column(name = "active")
+	private String activate;
+	public User(int id, String email, String firstname, String lastname, String password, String gender, String phNo,
+			String dob, String activate, String userName,LocalDate registration_date) {
+		super();
 		this.id = id;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
 		this.email = email;
-	}
-
-	public String getFirstname() {
-		return firstname;
-	}
-
-	public void setFirstname(String firstname) {
 		this.firstname = firstname;
-	}
-
-	public String getLastname() {
-		return lastname;
-	}
-
-	public void setLastname(String lastname) {
 		this.lastname = lastname;
-	}
-
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
 		this.password = password;
+		this.gender = gender;
+		this.phNo = phNo;
+		this.dateOfBirth = dob;
+		this.activate = activate;
+		this.userName = userName;
+		this.registration_date=registration_date;
 	}
+	User()
+	{}
 
-
-
-	public Set<Role> getRoles() {
-		return roles;
-	}
-
-	public void setRoles(Set<Role> roles) {
-		this.roles = roles;
-	}
-
-	    
-    
-    }
+}
