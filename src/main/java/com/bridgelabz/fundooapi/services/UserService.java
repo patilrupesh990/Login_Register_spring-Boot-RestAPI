@@ -12,7 +12,9 @@ public interface UserService{
 
 	public User findUserByUserName(String userName);
 
-	public ResponseEntity<String>  registerUser(User user,BindingResult result);   
+	public ResponseEntity<String>  registerUser(User user,BindingResult result);
+
+	public long activateUserAccount(String token);   
 
 
 
