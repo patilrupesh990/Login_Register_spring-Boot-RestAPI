@@ -32,7 +32,7 @@ public interface UserDao
 	 * retrieves user object by email.
 	 * returns null if not found
 	 */
-	public User getUserByEmail(String email, User user);
+	public User getUserByEmail(String email);
 
 	/**
 	 * @param user
@@ -48,7 +48,7 @@ public interface UserDao
 	 * retrieves user object by taking user id as input
 	 * return null if not user found
 	 */
-	public User getUserById(Integer id, User user);
+	public User getUserById(Long id);
 
 	/**
 	 * @param email
