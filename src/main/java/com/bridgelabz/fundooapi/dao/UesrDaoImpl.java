@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaQuery;
 
-import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.jboss.logging.Logger;
+import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -21,12 +21,11 @@ import lombok.extern.slf4j.Slf4j;
 @Repository
 @Slf4j
 public class UesrDaoImpl implements UserDao {
-	Logger log = Logger.getLogger(UesrDaoImpl.class);
 	@Autowired
 	WebMvcConfig encryption;
 	@Autowired
 	private EntityManager entityManager;
-	// private Session;
+
 	List<User> userList = new ArrayList<>();
 
 	@Override
@@ -34,11 +33,7 @@ public class UesrDaoImpl implements UserDao {
 		Session session = entityManager.unwrap(Session.class);
 		log.info("Session Object" + session);
 		Integer id = null;
-		if (user.getPassword() != null) {
-			user.setPassword(encryption.passwordEncoder().encode(user.getPassword()));
-			user.setActivate("not verified");
-			log.info("Encrypted password is: " + user.getPassword() + " length= " + user.getPassword().length());
-		}
+
 		log.info("User Object: " + user);
 		id = (Integer) session.save(user);
 		if (id == -1) {
@@ -49,49 +44,68 @@ public class UesrDaoImpl implements UserDao {
 		return id;
 	}
 
-	@Override
+	@SuppressWarnings("unchecked")
 	public boolean loginUser(String email, String password) {
+		Session session = entityManager.unwrap(Session.class);
+		// authentication logic
+		List<User> userLis = null;
+		userLis = session.createQuery("from User").getResultList();
+		password = encryption.passwordEncoder().encode(password);
+		log.info("User entered password: " + password);
+		for (User tempUser : userLis)
+			if (tempUser.getEmail().equals(email)) {
+				log.info("dao" + tempUser.getPassword());
+				return tempUser.getPassword().equals(password);
+			}
 		return false;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void activateUser(long id) {
 		log.info("Activate USer DAO");
+		Transaction transaction = null;
 		try {
-			log.info(id);
-			int i=(int)id;
+			int i = (int) id;
 			Session session = entityManager.unwrap(Session.class);
-			Transaction tx = session.beginTransaction();
+			transaction = session.beginTransaction();
 
 			String hql = "update User set activate=:activ" + " " + " " + " where id = :i";
-			Query query = session.createQuery(hql);
+			TypedQuery<User> query = session.createQuery(hql);
 			query.setParameter("activ", "activate");
 			query.setParameter("i", i);
 			int result = query.executeUpdate();
-			tx.commit();
+			transaction.commit();
 			if (result > 0)
 				log.info("User Verified SuccessFully in DAO");
 		} catch (Exception e) {
-			log.info("error in activate DAO");
-			e.printStackTrace();
+			// transaction.rollback();
+			log.info("error in activate DAO", e);
 		}
 	}
 
 	@Override
-	public User getUserByEmail(String email, User user) {
-		return null;
+	public User getUserByEmail(String email) {
+		log.info("reached in getUserByEmail successfully");
+		Session session = entityManager.unwrap(Session.class);
+		String hql = "from User where email=:email";
+		@SuppressWarnings("unchecked")
+		Query<User> query = session.createQuery(hql);
+		query.setParameter("email", email);
+		return query.uniqueResult();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public boolean userExists(User user) {
 		Session session = entityManager.unwrap(Session.class);
-		log.info("sghdgh");
+		log.info("reached in userExists successfully ");
 
 		String hql = "from User where email =:email or userName =:uname";
-		Query query = session.createQuery(hql);
+		Query<User> query = session.createQuery(hql);
 		query.setParameter("email", user.getEmail());
 		query.setParameter("uname", user.getUserName());
-		User userobj = (User) query.uniqueResult();
+		User userobj = query.uniqueResult();
 		if (userobj != null) {
 			log.info("if v");
 			return true;
@@ -99,9 +113,49 @@ public class UesrDaoImpl implements UserDao {
 		return false;
 	}
 
+	@SuppressWarnings("unchecked")
+	public List<User> getAllUser() {
+		log.info("reached in getAllUser successfully ");
+		Session session = entityManager.unwrap(Session.class);
+		@SuppressWarnings("rawtypes")
+		CriteriaQuery query;
+
+		query = session.getCriteriaBuilder().createQuery(User.class);
+		query.from(User.class);
+		List<User> userLis = session.createQuery(query).getResultList();
+
+		log.info("User Retrived from getAllUser Successfully...");
+		return userLis;
+	}
+
+	public void updateUserPassword(String userEmail, String newPassword) {
+		Session session = entityManager.unwrap(Session.class);
+		Transaction transaction = session.beginTransaction();
+		try {
+			String hql = "update User set password=:password" + " " + " " + " where email = :email";
+			@SuppressWarnings("unchecked")
+			TypedQuery<User> query = session.createQuery(hql);
+			query.setParameter("password", newPassword);
+			query.setParameter("email", userEmail);
+			int result = query.executeUpdate();
+			if (result > 0) {
+				transaction.commit();
+			} else
+				log.info("Failed to Update New Password from UserDao...");
+		} catch (Exception e) {
+			log.info("Failed to Update New Password from UserDao...", e);
+		}
+	}
+
 	@Override
-	public User getUserById(Integer id, User user) {
-		return null;
+	public User getUserById(Long id) {
+		log.info("reached in getUserByEmail successfully");
+		Session session = entityManager.unwrap(Session.class);
+		String hql = "from User where id=:id";
+		@SuppressWarnings("unchecked")
+		Query<User> query = session.createQuery(hql);
+		query.setParameter("id", id);
+		return query.uniqueResult();
 	}
 
 	@Override
