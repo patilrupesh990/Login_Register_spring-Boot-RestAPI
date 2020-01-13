@@ -4,18 +4,21 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 
 import com.bridgelabz.fundooapi.model.User;
+import com.bridgelabz.fundooapi.model.UserLoginPair;
 
 
 public interface UserService{
 
-	public User findUserByEmail(String email);
 
 	public User findUserByUserName(String userName);
 
 	public ResponseEntity<String>  registerUser(User user,BindingResult result);
 
-	public long activateUserAccount(String token);   
+	public long activateUserAccount(String token);
 
+	public ResponseEntity<String> userLogin(UserLoginPair loginPair);   
+
+	public ResponseEntity<String> verifyBeforeResetPassword(String email);
 
 
 
