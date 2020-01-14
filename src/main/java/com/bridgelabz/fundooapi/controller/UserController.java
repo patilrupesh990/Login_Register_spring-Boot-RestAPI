@@ -9,7 +9,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -56,29 +55,12 @@ public class UserController {
 		return userService.verifyBeforeResetPassword(userEmail.getEmail());
 	}
 	
-	@PutMapping("/forgotpassword-verify-user")
-//	public ResponseEntity<String> resetPassword(@RequestBody User userNewPassword)
-//	{
-//		log.info("reset password Controller Reached");
-//		
-//	}
-	
-	@GetMapping("/verify/{token}")
-	public ResponseEntity<String> verifyUser(@PathVariable("token") String token) {
-		log.info("Activate USer Controller");
-
-		long id = 0;
-		try {
-			id = userService.activateUserAccount(token);
-		} catch (Exception E) {
-			log.info("User with Id: " + id + " does not exist");
-			return new ResponseEntity(HttpStatus.BAD_REQUEST);
+	@GetMapping("/reset-password/{token}")
+	public ResponseEntity<String> resetPassword(@PathVariable("token") String token,@RequestBody User newPassword) {
+		log.info("Activate USer Controller password:"+newPassword);
+			return userService.resetPassword(newPassword.getPassword(), token);
 		}
-		log.info("User verified successfully !");
-		return ResponseEntity.ok().body("<h1 color:red>Verification Success!! Congratulations Your Accout Activated</h1>");
-	}
-	
-	
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@GetMapping("/register/activateuser/{token}")
 	public ResponseEntity<String> activateUser(@PathVariable("token") String token) {
@@ -92,7 +74,7 @@ public class UserController {
 			return new ResponseEntity(HttpStatus.BAD_REQUEST);
 		}
 		log.info("User verified successfully !");
-		return ResponseEntity.ok().body("<h1 color:red>Verification Success!! Congratulations Your Accout Activated</h1>");
+		return ResponseEntity.ok().body("<h1 color:'red'>Verification Success!! Congratulations Your Accout Activated</h1>");
 	}
 	
 	
