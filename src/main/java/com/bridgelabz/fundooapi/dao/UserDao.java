@@ -55,6 +55,6 @@ public interface UserDao
 	 * @param password
 	 * resets password for particular email
 	 */
-	public void resetPassword(User user);
-
+	public int updateUserPaword(long id, String newPassword);
+	public boolean isUserVerified(String email);
 }
