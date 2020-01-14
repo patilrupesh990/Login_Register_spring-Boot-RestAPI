@@ -1,13 +1,15 @@
 package com.bridgelabz.fundooapi.model;
 
-import java.time.LocalDate;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
+import org.hibernate.validator.constraints.Length;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -23,51 +25,48 @@ public class User {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private int id;
 
-	@Column(name = "email")
+	@Column(name = "EMAIL")
+	@NotNull
 	private String email;
 
-	@Column(name = "firstname")
+	@Column(name = "FIRST_NAME")
+	@NotBlank(message = "First Name is mandatory")
 	private String firstname;
 
-	@Column(name = "lastname")
+	@Column(name = "LAST_NAME")
 	private String lastname;
 
-	@Column(name = "password")
+	@Column(name = "PASSWORD")
+	@NotBlank(message = "Password is mandatory")
 	private String password;
 
-	@Column(name = "gender")
+	@Column(name = "GENDER")
+	@NotBlank(message = "Gender is mandatory")
 	private String gender;
 
-	@Column(name = "phNo")
+	@Column(name = "MO_No")
+	@NotBlank(message = "contact is mandatory")
+	@Length (min = 10,max = 10)
 	private String phNo;
 
-	@Column(name = "dob")
+	@Column(name = "DOB")
+	@NotNull
 	private String dateOfBirth;
 
-	@Column(name = "userName")
+	@Column(name = "USER_NAME")
+	@NotBlank(message = "UserName is mandatory")
 	private String userName;
 
-	@Column(name = "Registration_date")
-	private LocalDate registration_date;
+	 @Column(name = "REGISTRATION_DATE")
+	 @NotNull
+	private String creationTime;
+	
+    @Column(name = "LAST_UPDATE")
+	private String updateTime;
 
-	@Column(name = "active")
+	@Column(name = "STATUS")
+	@NotNull
 	private String activate;
-	public User(int id, String email, String firstname, String lastname, String password, String gender, String phNo,
-			String dob, String activate, String userName,LocalDate registration_date) {
-		super();
-		this.id = id;
-		this.email = email;
-		this.firstname = firstname;
-		this.lastname = lastname;
-		this.password = password;
-		this.gender = gender;
-		this.phNo = phNo;
-		this.dateOfBirth = dob;
-		this.activate = activate;
-		this.userName = userName;
-		this.registration_date=registration_date;
-	}
-	User()
-	{}
-
+	
+	
 }
