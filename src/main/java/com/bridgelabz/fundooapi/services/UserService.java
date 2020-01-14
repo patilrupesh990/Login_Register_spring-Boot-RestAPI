@@ -9,7 +9,8 @@ import com.bridgelabz.fundooapi.model.UserLoginPair;
 
 public interface UserService{
 
-
+	
+	
 	public User findUserByUserName(String userName);
 
 	public ResponseEntity<String>  registerUser(User user,BindingResult result);
@@ -19,9 +20,10 @@ public interface UserService{
 	public ResponseEntity<String> userLogin(UserLoginPair loginPair);   
 
 	public ResponseEntity<String> verifyBeforeResetPassword(String email);
+	
+	public ResponseEntity<String> resetPassword(String newPassword,String token);
 
-
-
+	
 //	public boolean loginUser(String email, String password);
 //	public boolean userExists(User user);
 //	public User getUserByEmail(String email, User user);
