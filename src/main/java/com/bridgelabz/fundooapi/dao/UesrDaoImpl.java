@@ -15,6 +15,7 @@ import org.springframework.stereotype.Repository;
 
 import com.bridgelabz.fundooapi.configration.WebMvcConfig;
 import com.bridgelabz.fundooapi.model.User;
+import com.bridgelabz.fundooapi.util.DateValidator;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -69,7 +70,6 @@ public class UesrDaoImpl implements UserDao {
 			int i = (int) id;
 			Session session = entityManager.unwrap(Session.class);
 			transaction = session.beginTransaction();
-
 			String hql = "update User set activate=:activ" + " " + " " + " where id = :i";
 			TypedQuery<User> query = session.createQuery(hql);
 			query.setParameter("activ", "activate");
@@ -86,12 +86,14 @@ public class UesrDaoImpl implements UserDao {
 
 	@Override
 	public User getUserByEmail(String email) {
-		log.info("reached in getUserByEmail successfully");
+		
+		log.info("reached in getUserByEmailDao successfully");
+		
 		Session session = entityManager.unwrap(Session.class);
-		String hql = "from User where email=:email";
+		String hql = "from User where email=:mail";
 		@SuppressWarnings("unchecked")
 		Query<User> query = session.createQuery(hql);
-		query.setParameter("email", email);
+		query.setParameter("mail", email);
 		return query.uniqueResult();
 	}
 
@@ -118,9 +120,7 @@ public class UesrDaoImpl implements UserDao {
 		log.info("reached in getAllUser successfully ");
 		Session session = entityManager.unwrap(Session.class);
 		@SuppressWarnings("rawtypes")
-		CriteriaQuery query;
-
-		query = session.getCriteriaBuilder().createQuery(User.class);
+		CriteriaQuery  query = session.getCriteriaBuilder().createQuery(User.class);
 		query.from(User.class);
 		List<User> userLis = session.createQuery(query).getResultList();
 
@@ -128,39 +128,57 @@ public class UesrDaoImpl implements UserDao {
 		return userLis;
 	}
 
-	public void updateUserPassword(String userEmail, String newPassword) {
+	@Override
+	public int updateUserPaword(long id, String newPassword) {
+		Transaction transaction = null;
 		Session session = entityManager.unwrap(Session.class);
-		Transaction transaction = session.beginTransaction();
+		int result=0;
 		try {
-			String hql = "update User set password=:password" + " " + " " + " where email = :email";
+			int i = (int) id;
+			log.info("Retrived id from database::"+id);
+			transaction = session.beginTransaction();
 			@SuppressWarnings("unchecked")
-			TypedQuery<User> query = session.createQuery(hql);
+			TypedQuery<User> query = session.createQuery("update User set"+" password=:password,"+"updateTime=:time" + " " + " " + " where id = :id");
+			
 			query.setParameter("password", newPassword);
-			query.setParameter("email", userEmail);
-			int result = query.executeUpdate();
-			if (result > 0) {
-				transaction.commit();
-			} else
-				log.info("Failed to Update New Password from UserDao...");
-		} catch (Exception e) {
-			log.info("Failed to Update New Password from UserDao...", e);
-		}
+			query.setParameter("time", DateValidator.getCurrentDate());
+			query.setParameter("id", i);
+			 
+			result = query.executeUpdate();
+				
+			log.info("Successfully Updated New Password from UserDao...");
+			
+		}catch (Exception e) {
+				log.info("Failed to Updated Password from UserDao...",e);
+			}
+		return result;
 	}
 
 	@Override
 	public User getUserById(Long id) {
 		log.info("reached in getUserByEmail successfully");
 		Session session = entityManager.unwrap(Session.class);
-		String hql = "from User where id=:id";
+		
 		@SuppressWarnings("unchecked")
-		Query<User> query = session.createQuery(hql);
+		TypedQuery<User> query = session.createQuery("from User where id=:id");
 		query.setParameter("id", id);
-		return query.uniqueResult();
+		
+		return query.getSingleResult();
 	}
-
 	@Override
-	public void resetPassword(User user) {
-
+	public boolean isUserVerified(String email)
+	{
+		log.info("reached in getUserByEmail successfully");
+		Session session = entityManager.unwrap(Session.class);
+		@SuppressWarnings("unchecked")
+		TypedQuery<User> query = session.createQuery("from User where email=:email");
+		query.setParameter("email", email);
+		User user=query.getSingleResult();
+		if(user.getActivate().equals("Not varified"))
+			return false;
+		else
+			return true;
 	}
+	
 
 }
