@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 
 import com.bridgelabz.fundooapi.configration.WebMvcConfig;
-import com.bridgelabz.fundooapi.dao.UserDao;
+import com.bridgelabz.fundooapi.dao.IUserDao;
 import com.bridgelabz.fundooapi.model.User;
 import com.bridgelabz.fundooapi.model.UserLoginPair;
 import com.bridgelabz.fundooapi.util.DateValidator;
@@ -23,9 +23,9 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service("userService")
 @Slf4j
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl implements IUserService {
 	@Autowired
-	private UserDao userDAO;
+	private IUserDao userDAO;
 
 	@Autowired
 	private JwtTokenUtil generateToken;
