@@ -1,4 +1,4 @@
-package com.bridgelabz.restapi.configration;
+package com.bridgelabz.fundooapi.configration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
