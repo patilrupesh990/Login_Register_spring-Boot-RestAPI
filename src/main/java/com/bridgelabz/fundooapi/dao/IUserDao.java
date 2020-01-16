@@ -3,7 +3,7 @@ package com.bridgelabz.fundooapi.dao;
 
 import com.bridgelabz.fundooapi.model.User;
 
-public interface UserDao 
+public interface IUserDao 
 {
 	/**
 	 * @param user
