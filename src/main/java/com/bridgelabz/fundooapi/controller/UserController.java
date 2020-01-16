@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bridgelabz.fundooapi.model.User;
 import com.bridgelabz.fundooapi.model.UserLoginPair;
-import com.bridgelabz.fundooapi.services.UserService;
+import com.bridgelabz.fundooapi.services.IUserService;
 import com.bridgelabz.fundooapi.services.UserServiceImpl;
 
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +27,7 @@ public class UserController {
 
 	@Autowired
 
-	private UserService userService;
+	private IUserService userService;
 	@Autowired
 	UserServiceImpl service;
 	
