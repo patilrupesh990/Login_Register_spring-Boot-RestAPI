@@ -7,7 +7,7 @@ import com.bridgelabz.fundooapi.model.User;
 import com.bridgelabz.fundooapi.model.UserLoginPair;
 
 
-public interface UserService{
+public interface IUserService{
 
 	
 	
