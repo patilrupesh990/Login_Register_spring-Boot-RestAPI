@@ -1,5 +1,5 @@
 package com.bridgelabz.fundooapi.model;
-
+//DTO
 public class UserLoginPair {
 
 	private String email;

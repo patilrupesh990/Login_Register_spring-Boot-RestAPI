@@ -68,5 +68,5 @@ public class User {
 	@NotNull
 	private String activate;
 	
-	
+	//DTO
 }
