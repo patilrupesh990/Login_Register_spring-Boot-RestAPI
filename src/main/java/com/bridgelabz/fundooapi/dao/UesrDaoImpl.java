@@ -7,6 +7,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaQuery;
 
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Repository;
 import com.bridgelabz.fundooapi.configration.WebMvcConfig;
 import com.bridgelabz.fundooapi.model.User;
 import com.bridgelabz.fundooapi.util.DateValidator;
+import com.bridgelabz.fundooapi.util.HibernateUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,6 +28,8 @@ public class UesrDaoImpl implements IUserDao {
 	WebMvcConfig encryption;
 	@Autowired
 	private EntityManager entityManager;
+	@Autowired
+	private HibernateUtil<User> hibernateUtil;
 
 	List<User> userList = new ArrayList<>();
 
@@ -70,16 +74,15 @@ public class UesrDaoImpl implements IUserDao {
 			int i = (int) id;
 			Session session = entityManager.unwrap(Session.class);
 			transaction = session.beginTransaction();
-			String hql = "update User set activate=:activ" + " " + " " + " where id = :i";
+			String hql = "update User set activate=:activ" + " " + " " + " where id = :id";
 			TypedQuery<User> query = session.createQuery(hql);
 			query.setParameter("activ", "activate");
-			query.setParameter("i", i);
+			query.setParameter("id", i);
 			int result = query.executeUpdate();
 			transaction.commit();
 			if (result > 0)
 				log.info("User Verified SuccessFully in DAO");
 		} catch (Exception e) {
-			// transaction.rollback();
 			log.info("error in activate DAO", e);
 		}
 	}
@@ -115,6 +118,7 @@ public class UesrDaoImpl implements IUserDao {
 		return false;
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public List<User> getAllUser() {
 		log.info("reached in getAllUser successfully ");
@@ -138,9 +142,9 @@ public class UesrDaoImpl implements IUserDao {
 			log.info("Retrived id from database::"+id);
 			transaction = session.beginTransaction();
 			@SuppressWarnings("unchecked")
-			TypedQuery<User> query = session.createQuery("update User set"+" password=:password,"+"updateTime=:time" + " " + " " + " where id = :id");
+			TypedQuery<User> query = session.createQuery("update User set"+" password=:psw,"+"updateTime=:time" + " " + " " + " where id = :id");
 			
-			query.setParameter("password", newPassword);
+			query.setParameter("psw", newPassword);
 			query.setParameter("time", DateValidator.getCurrentDate());
 			query.setParameter("id", i);
 			 
@@ -156,14 +160,18 @@ public class UesrDaoImpl implements IUserDao {
 
 	@Override
 	public User getUserById(Long id) {
-		log.info("reached in getUserByEmail successfully");
-		Session session = entityManager.unwrap(Session.class);
+		return hibernateUtil.getCurrentUser(id.intValue());
 		
-		@SuppressWarnings("unchecked")
-		TypedQuery<User> query = session.createQuery("from User where id=:id");
-		query.setParameter("id", id);
-		
-		return query.getSingleResult();
+//		log.info("reached in getUserByID successfully");
+//		Session session = entityManager.unwrap(Session.class);
+//		try {
+//		TypedQuery<User> query = session.createQuery("from User where id=:ID");
+//		query.setParameter("ID", id);
+//		return query.getSingleResult();
+//		}catch (Exception e) {
+//			log.info("error to fetch Data:",e);
+//			return null;
+//		}
 	}
 	@Override
 	public boolean isUserVerified(String email)
@@ -179,6 +187,8 @@ public class UesrDaoImpl implements IUserDao {
 		else
 			return true;
 	}
+	
+	
 	
 
 }
