@@ -41,7 +41,7 @@ public class UserServiceImpl implements IUserService {
 	@Autowired
 	UserData userresponce;
 
-    private static final String GET_USERS_ENDPOINT_URL = "http://localhost:8080/api/v1/employees";
+  //  private static final String GET_USERS_ENDPOINT_URL = "http://localhost:8080/api/v1/employees";
 
 	@Transactional
 	@Override
