@@ -76,7 +76,7 @@ public class UesrDaoImpl implements IUserDao {
 			transaction = session.beginTransaction();
 			String hql = "update User set activate=:activ" + " " + " " + " where id = :id";
 			TypedQuery<User> query = session.createQuery(hql);
-			query.setParameter("activ", "activate");
+			query.setParameter("activ", true);
 			query.setParameter("id", i);
 			int result = query.executeUpdate();
 			transaction.commit();
@@ -182,10 +182,10 @@ public class UesrDaoImpl implements IUserDao {
 		TypedQuery<User> query = session.createQuery("from User where email=:email");
 		query.setParameter("email", email);
 		User user=query.getSingleResult();
-		if(user.getActivate().equals("Not varified"))
-			return false;
-		else
+		if(user.isActivate())
 			return true;
+		else
+			return false;
 	}
 	
 	
