@@ -64,9 +64,9 @@ public class User {
     @Column(name = "LAST_UPDATE")
 	private String updateTime;
 
-	@Column(name = "STATUS")
+	@Column(name = "Verified")
 	@NotNull
-	private String activate;
-	
+	private boolean activate;
+
 	//DTO
 }
