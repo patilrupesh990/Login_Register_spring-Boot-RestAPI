@@ -60,7 +60,7 @@ public class UserServiceImpl implements IUserService {
 					.body(new UserResponse(208, "Some Internal Error Occurred"));
 		} else {
 			user.setPassword(encryption.passwordEncoder().encode(user.getPassword()));
-			user.setActivate("Not varified");
+			user.setActivate(false);
 			user.setCreationTime(DateValidator.getCurrentDate());
 
 			log.info("User Registered");
@@ -91,7 +91,7 @@ public class UserServiceImpl implements IUserService {
 				if (userDAO.isUserVerified(loginPair.getEmail())) {
 					log.info("Successfully LogedIn...");
 					return ResponseEntity.status(HttpStatus.ACCEPTED)
-							.body("Login SuccessFully Wellcome:" + userDetails.get().getFirstname());
+							.body("Login SuccessFully Wellcome:" + userDetails.get().getFirstname()+" "+userDetails.get().getLastname());
 				} else {
 					return ResponseEntity.status(HttpStatus.LOCKED).body("Your Account is Not Activated");
 				}
