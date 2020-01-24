@@ -16,7 +16,7 @@ public class UserData {
 	private String gender;
 	private String phNo;
 	private String dateOfBirth;
-	private String activate;
+	private boolean activate;
 	private int status;
 	private String response;
 
