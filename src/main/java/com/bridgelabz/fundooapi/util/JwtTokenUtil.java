@@ -22,8 +22,8 @@ public class JwtTokenUtil implements Serializable {
 		return token;
 	}
 
-	public long parseToken(String token) {
-		long id = 0;
+	public int parseToken(String token) {
+		int id = 0;
 		if (token != null) {
 				id=JWT.require(Algorithm.HMAC512(SECRET)).build().verify(token).getClaim("id").asInt();
 		}
