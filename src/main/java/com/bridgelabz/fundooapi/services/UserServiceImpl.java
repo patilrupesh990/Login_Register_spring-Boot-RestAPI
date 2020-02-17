@@ -15,6 +15,7 @@ import com.bridgelabz.fundooapi.configration.WebMvcConfig;
 import com.bridgelabz.fundooapi.dao.IUserDao;
 import com.bridgelabz.fundooapi.model.User;
 import com.bridgelabz.fundooapi.model.UserLoginPair;
+import com.bridgelabz.fundooapi.response.LoginResponse;
 import com.bridgelabz.fundooapi.response.UserData;
 import com.bridgelabz.fundooapi.response.UserResponse;
 import com.bridgelabz.fundooapi.util.DateValidator;
@@ -41,7 +42,6 @@ public class UserServiceImpl implements IUserService {
 	@Autowired
 	UserData userresponce;
 
-  //  private static final String GET_USERS_ENDPOINT_URL = "http://localhost:8080/api/v1/employees";
 
 	@Transactional
 	@Override
@@ -50,7 +50,7 @@ public class UserServiceImpl implements IUserService {
 
 		if (userDAO.userExists(user)) {
 			log.info("User Alrady exist Service");
-			return ResponseEntity.status(HttpStatus.ALREADY_REPORTED)
+			return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
 					.body(new UserResponse(208, "User Is Alrady Registered"));
 		}
 
@@ -66,7 +66,7 @@ public class UserServiceImpl implements IUserService {
 			log.info("User Registered");
 			userDAO.registerUser(user);
 			log.info("mail sending......");
-			String link = "http://192.168.1.175:8086/users/register/activ/" + generateToken.generateToken(user.getId());
+			String link = "http://192.168.1.175:4200/active/" + generateToken.generateToken(user.getId());
 			emailGenerate.sendEmail(user.getEmail(), "Foondu Notes Varification", link);
 			log.info("MAil sent to user mailId");
 			return ResponseEntity.status(HttpStatus.ACCEPTED)
@@ -76,7 +76,7 @@ public class UserServiceImpl implements IUserService {
 	}
 
 	@Override
-	public ResponseEntity<String> userLogin(UserLoginPair loginPair) {
+	public ResponseEntity<LoginResponse> userLogin(UserLoginPair loginPair) {
 		Optional<User> userDetails = Optional.ofNullable(userDAO.getUserByEmail(loginPair.getEmail()));
 		log.info("Token Generated======>" + generateToken.generateToken(userDetails.get().getId()));
 		if (userDetails.isPresent()) {
@@ -90,14 +90,13 @@ public class UserServiceImpl implements IUserService {
 					&& encryption.passwordEncoder().matches(loginPair.getPassword(), userDetails.get().getPassword())) {
 				if (userDAO.isUserVerified(loginPair.getEmail())) {
 					log.info("Successfully LogedIn...");
-					return ResponseEntity.status(HttpStatus.ACCEPTED)
-							.body("Login SuccessFully Wellcome:" + userDetails.get().getFirstname()+" "+userDetails.get().getLastname());
+					return  ResponseEntity.status(HttpStatus.ACCEPTED).body(new LoginResponse(201,generateToken.generateToken(userDetails.get().getId()), userDetails.get().getFirstname()));
 				} else {
-					return ResponseEntity.status(HttpStatus.LOCKED).body("Your Account is Not Activated");
+					return  ResponseEntity.status(HttpStatus.LOCKED).body(new LoginResponse(423, "invalid username or password",generateToken.generateToken(userDetails.get().getId()) ));
 				}
 			}
 		}
-		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("invalid User Name Or Password");
+		return  ResponseEntity.status(HttpStatus.LOCKED).body(new LoginResponse(423, "invalid username or password",generateToken.generateToken(userDetails.get().getId())));
 
 	}
 
@@ -107,8 +106,8 @@ public class UserServiceImpl implements IUserService {
 		try {
 			userDAO.activateUser(id);
 			log.info("User verified successfully !");
-			return ResponseEntity.ok()
-					.body("<h1 color:'red'>Verification Success!! Congratulations Your Accout Activated</h1>");
+			return ResponseEntity.accepted()
+					.body("<h1 color:'red'>Verification Success!! Congratulations Your Accout Activated</h1><br><h2>+");
 		} catch (Exception e) {
 			log.info("User with Id: " + id + " does not exist");
 			return ResponseEntity.ok().body("<h1 color:'red'>Sorry some internal Error !! Please Try Again</h1>");
@@ -116,7 +115,7 @@ public class UserServiceImpl implements IUserService {
 	}
 
 	public Long getUserIdFromToken(String token) {
-		return generateToken.parseToken(token);
+		return (long) generateToken.parseToken(token);
 	}
 
 	@Override
@@ -133,7 +132,8 @@ public class UserServiceImpl implements IUserService {
 			log.info("User Exist from service");
 			log.info("mail sending For reset Password......");
 			String token = generateToken.generateToken(userDetails.get().getId());
-			String link2 = "http://192.168.1.175:8086/users/reset-password/" + token;
+			String link2 = "http://192.168.1.175:4200/reset-password/" + token;
+
 			emailGenerate.sendEmail(userDetails.get().getEmail(), "FundooNotes Api Forgot Password Request", link2);
 			log.info("mail sent For reset Password......Generated token:" + token);
 			return ResponseEntity.status(HttpStatus.ACCEPTED).body("User Exists Enter new Password");
@@ -182,7 +182,6 @@ public class UserServiceImpl implements IUserService {
 		{
 			return ResponseEntity.status(HttpStatus.NOT_FOUND)
 					.body(new UserData(404,"User Not Found"));
-
 		}
 	}
 
