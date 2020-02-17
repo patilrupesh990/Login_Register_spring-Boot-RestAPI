@@ -7,7 +7,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaQuery;
 
-import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
@@ -35,18 +34,14 @@ public class UesrDaoImpl implements IUserDao {
 
 	@Override
 	public Integer registerUser(User user) {
-		Session session = entityManager.unwrap(Session.class);
-		log.info("Session Object" + session);
-		Integer id = null;
-
-		log.info("User Object: " + user);
-		id = (Integer) session.save(user);
-		if (id == -1) {
-			log.info("*****Id generated is: " + id);
-			return -1;
+		try {
+		hibernateUtil.save(user);
+		return 1;
+		}catch (Exception e) {
+			// TODO: handle exception
+			log.info("Error in Dao");
+			return 2;
 		}
-		log.info("Registration Successfull in DAO");
-		return id;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -161,17 +156,7 @@ public class UesrDaoImpl implements IUserDao {
 	@Override
 	public User getUserById(Long id) {
 		return hibernateUtil.getCurrentUser(id.intValue());
-		
-//		log.info("reached in getUserByID successfully");
-//		Session session = entityManager.unwrap(Session.class);
-//		try {
-//		TypedQuery<User> query = session.createQuery("from User where id=:ID");
-//		query.setParameter("ID", id);
-//		return query.getSingleResult();
-//		}catch (Exception e) {
-//			log.info("error to fetch Data:",e);
-//			return null;
-//		}
+
 	}
 	@Override
 	public boolean isUserVerified(String email)
