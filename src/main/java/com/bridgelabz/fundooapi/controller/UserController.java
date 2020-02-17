@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bridgelabz.fundooapi.model.User;
 import com.bridgelabz.fundooapi.model.UserLoginPair;
+import com.bridgelabz.fundooapi.response.LoginResponse;
 import com.bridgelabz.fundooapi.response.UserData;
 import com.bridgelabz.fundooapi.response.UserResponse;
 import com.bridgelabz.fundooapi.services.IUserService;
@@ -25,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequestMapping("/users")
 @Slf4j
+@CrossOrigin("*")
 public class UserController {
 
 	@Autowired
@@ -46,7 +49,7 @@ public class UserController {
 	}
 
 	@PostMapping("/login")
-	public ResponseEntity<String> userLogin(@RequestBody UserLoginPair loginPair) {
+	public ResponseEntity<LoginResponse> userLogin(@RequestBody UserLoginPair loginPair) {
 		log.info("User Registration Controller");
 		return userService.userLogin(loginPair);
 	}
@@ -63,7 +66,7 @@ public class UserController {
 		return userService.resetPassword(newPassword.getPassword(), token);
 	}
 
-	@GetMapping("/register/activ/{token}")
+	@PutMapping("/register/activ/{token}")
 	public ResponseEntity<String> activateUser(@PathVariable("token") String token) {
 		log.info("Activate USer Controller");
 		return userService.activateUserAccount(token);
