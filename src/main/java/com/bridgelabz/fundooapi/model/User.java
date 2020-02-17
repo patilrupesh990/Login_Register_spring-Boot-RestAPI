@@ -50,7 +50,6 @@ public class User {
 	private String phNo;
 
 	@Column(name = "DOB")
-	@NotNull
 	private String dateOfBirth;
 
 	@Column(name = "USER_NAME")
