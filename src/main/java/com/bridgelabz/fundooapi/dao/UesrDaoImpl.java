@@ -36,9 +36,9 @@ public class UesrDaoImpl implements IUserDao {
 	public Integer registerUser(User user) {
 		try {
 		hibernateUtil.save(user);
+		log.info("Svae user Object From Dao");
 		return 1;
 		}catch (Exception e) {
-			// TODO: handle exception
 			log.info("Error in Dao");
 			return 2;
 		}
@@ -46,18 +46,31 @@ public class UesrDaoImpl implements IUserDao {
 
 	@SuppressWarnings("unchecked")
 	public boolean loginUser(String email, String password) {
-		Session session = entityManager.unwrap(Session.class);
-		// authentication logic
+//		Session session = entityManager.unwrap(Session.class);
+//		// authentication logic
 		List<User> userLis = null;
-		userLis = session.createQuery("from User").getResultList();
-		password = encryption.passwordEncoder().encode(password);
-		log.info("User entered password: " + password);
+//		userLis = session.createQuery("from User").getResultList();
+//		password = encryption.passwordEncoder().encode(password);
+//		log.info("User entered password: " + password);
+//		for (User tempUser : userLis)
+//			if (tempUser.getEmail().equals(email)) {
+//				log.info("dao" + tempUser.getPassword());
+//				return tempUser.getPassword().equals(password);
+//			}
+//		return false;
+		
+		userLis=hibernateUtil.createQuery("from user").getResultList();
 		for (User tempUser : userLis)
 			if (tempUser.getEmail().equals(email)) {
+				log.info("-------------------------------------------Found User From dao");
 				log.info("dao" + tempUser.getPassword());
-				return tempUser.getPassword().equals(password);
+//				return tempUser.getPassword().equals(password);
+				return false;
 			}
-		return false;
+		log.info("User Does not found in dao..");
+				return false;
+			
+		
 	}
 
 	@SuppressWarnings("unchecked")
