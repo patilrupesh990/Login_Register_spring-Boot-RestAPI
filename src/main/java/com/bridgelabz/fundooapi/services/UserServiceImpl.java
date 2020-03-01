@@ -16,12 +16,16 @@ import com.bridgelabz.fundooapi.dao.IUserDao;
 import com.bridgelabz.fundooapi.model.User;
 import com.bridgelabz.fundooapi.model.UserLoginPair;
 import com.bridgelabz.fundooapi.response.LoginResponse;
+import com.bridgelabz.fundooapi.response.MailResponse;
 import com.bridgelabz.fundooapi.response.UserData;
 import com.bridgelabz.fundooapi.response.UserResponse;
 import com.bridgelabz.fundooapi.util.DateValidator;
 import com.bridgelabz.fundooapi.util.EmailGenerator;
 import com.bridgelabz.fundooapi.util.JwtTokenUtil;
+import com.bridgelabz.fundooapi.util.RabbitMQUtil;
+import com.bridgelabz.fundooapi.util.VariablesUtil;
 
+import ch.qos.logback.classic.pattern.Util;
 import lombok.extern.slf4j.Slf4j;
 
 @Service("userService")
@@ -41,6 +45,9 @@ public class UserServiceImpl implements IUserService {
 	
 	@Autowired
 	UserData userresponce;
+	
+	@Autowired
+	RabbitMQUtil rabbitMQUtil;
 
 
 	@Transactional
@@ -66,12 +73,19 @@ public class UserServiceImpl implements IUserService {
 			log.info("User Registered");
 			userDAO.registerUser(user);
 			log.info("mail sending......");
-			String link = "http://192.168.1.175:4200/active/" + generateToken.generateToken(user.getId());
-			emailGenerate.sendEmail(user.getEmail(), "Foondu Notes Varification", link);
-			log.info("MAil sent to user mailId");
-			return ResponseEntity.status(HttpStatus.ACCEPTED)
-					.body(new UserResponse(208, "Verification Link Sent to your email ===>" + user.getEmail()
-							+ "<=== please verify your email first"));
+			String emailBodyContaintLink = VariablesUtil.link(
+					VariablesUtil.IP_ADDRESS + VariablesUtil.ANGULAR_PORT_NUMBER + VariablesUtil.USER_ACTIVATE_URL,
+					generateToken.generateToken(user.getId()));
+			if (rabbitMQUtil.send(new MailResponse(user.getEmail(),VariablesUtil.REGISTRATION_EMAIL_SUBJECT,
+					emailBodyContaintLink))) {
+				return ResponseEntity.status(HttpStatus.ACCEPTED)
+						.body(new UserResponse(208, "Verification Link Sent to your email ===>" + user.getEmail()
+								+ "<=== please verify your email first"));
+			}
+			return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
+					.body(new UserResponse(502, "Error sending verification mail!" + user.getEmail()
+							+ "<=== please Try again"));
+			
 		}
 	}
 
@@ -132,9 +146,10 @@ public class UserServiceImpl implements IUserService {
 			log.info("User Exist from service");
 			log.info("mail sending For reset Password......");
 			String token = generateToken.generateToken(userDetails.get().getId());
-			String link2 = "http://192.168.1.175:4200/reset-password/" + token;
 
-			emailGenerate.sendEmail(userDetails.get().getEmail(), "FundooNotes Api Forgot Password Request", link2);
+			String emailBodyContaintLink = VariablesUtil.link(VariablesUtil.IP_ADDRESS+VariablesUtil.ANGULAR_PORT_NUMBER+VariablesUtil.FORGOT_PASSWORD_URL,token);
+			rabbitMQUtil.send(new MailResponse(userDetails.get().getEmail(),VariablesUtil.FORGOT_PASSWORD_SUBJECT,
+					emailBodyContaintLink));
 			log.info("mail sent For reset Password......Generated token:" + token);
 			return ResponseEntity.status(HttpStatus.ACCEPTED).body("User Exists Enter new Password");
 		} else {
