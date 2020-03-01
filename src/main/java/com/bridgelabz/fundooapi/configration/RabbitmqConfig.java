@@ -15,22 +15,12 @@ public class RabbitmqConfig {
 	@Autowired
 	private ConnectionFactory rabbitConnectionFactory;
 
-	/**
-	 * Creates the object by taking exchange name, durability and auto delete option
-	 * as input parameter.
-	 * 
-	 * @return {@link DirectExchange}
-	 */
 	@Bean
 	public DirectExchange exchange() {
 		return new DirectExchange("fundoo.rabbitmq.exchange", true, false);
 	}
 
-	/**
-	 * Creates the object by taking exchange name, durability as input parameter.
-	 * 
-	 * @return {@link Queue}
-	 */
+	
 	@Bean
 	public Queue messageQueue() {
 		return new Queue("fundoo.rabbitmq.queue", true);
